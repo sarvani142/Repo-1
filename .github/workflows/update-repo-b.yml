@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: sarvani142/repo-2
-          token: ${{ secrets.REPO_B_TOKEN }}
+          token: ${{ secrets.SECOND_REPO_TOKEN }}
           path: repo-b
 
       # Copy results into repo B
