@@ -1,4 +1,4 @@
-name: Update Repo 2 with Generated Data
+name: Copy Repo 1 to Repo 2
 on:
   push:
     branches:
@@ -6,39 +6,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  copy-repo:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repo A
-      - name: Checkout repo A
+      # Checkout repo 1 (this repo)
+      - name: Checkout Repo 1
         uses: actions/checkout@v4
 
-      # Checkout repo 2 (repo-2) into a subfolder
-      - name: Checkout repo 2
+      # Checkout repo 2 into a subfolder
+      - name: Checkout Repo 2
         uses: actions/checkout@v4
         with:
           repository: sarvani142/repo-2
           token: ${{ secrets.SECOND_REPO_TOKEN }}
           path: repo-2
-          fetch-depth: 0
-          persist-credentials: true
 
-      # Run your main data processing script with output directed into repo-2
-      - name: Run data processing and update print
+      # Copy all files from repo 1 to repo 2
+      - name: Copy files
         run: |
-          python update_print.py codepython.py "into repo r3"
-          mkdir -p repo-2/data
-          # Copy the processed code and output directly into repo-2
-          cp codepython_updated.py repo-2/data/
-          cp -r output/* repo-2/data/
+          cp -r * repo-2/
 
       # Commit and push changes to repo 2
-      - name: Commit and push to repo 2
+      - name: Commit and push
         run: |
           cd repo-2
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Update data and Python print from repo A ($(date))" || echo "No changes to commit"
-          git push --set-upstream origin main
+          git commit -m "Sync from repo 1" || echo "No changes to commit"
+          git push
