@@ -1,4 +1,4 @@
-name: Copy Repo 1 to Repo 2
+name: Copy Repo 1 to Repo 2 with Updated Print
 on:
   push:
     branches:
@@ -21,11 +21,24 @@ jobs:
           repository: sarvani142/repo-2
           token: ${{ secrets.SECOND_REPO_TOKEN }}
           path: repo-2
+          fetch-depth: 0
+          persist-credentials: true
 
-      # Copy all files from repo 1 to repo 2
-      - name: Copy files
+      # Run update_print.py on codepython.py
+      - name: Update print statements
         run: |
-          rsync -av --exclude='repo-2' --exclude='.git' ./ repo-2/
+          python update_print.py codepython.py "into repo r3"
+
+      # Copy updated file and any output to repo-2
+      - name: Copy updated files to repo 2
+        run: |
+          mkdir -p repo-2/data
+          cp codepython_updated.py repo-2/data/
+          if [ -d output ] && [ "$(ls -A output)" ]; then
+            cp -r output/* repo-2/data/
+          else
+            echo "No output folder or files to copy"
+          fi
 
       # Commit and push changes to repo 2
       - name: Commit and push to repo 2
@@ -34,6 +47,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Sync from repo 1" || echo "No changes to commit"
+          git commit -m "Update codepython.py print and output ($(date))" || echo "No changes to commit"
           git remote set-url origin https://x-access-token:${{ secrets.SECOND_REPO_TOKEN }}@github.com/sarvani142/repo-2.git
           git push --set-upstream origin main
