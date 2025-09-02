@@ -2,35 +2,31 @@ import re
 import sys
 from pathlib import Path
 
-def convert_python_to_java(py_code: str) -> str:
+def style_python_code(py_code: str) -> str:
     """
-    Very naive Python -> Java converter.
-    Handles only simple cases for demo purposes.
+    Very naive Python code styler.
+    Adjusts indentation, comments, and spacing for readability.
     """
-    java_code = py_code
+    styled_code = py_code
 
-    # Replace print statements
-    java_code = re.sub(r'print\((.*)\)', r'System.out.println(\1);', java_code)
+    # Standardize indentation (4 spaces)
+    styled_code = styled_code.replace("\t", "    ")
 
-    # Replace def functions with public static methods
-    java_code = re.sub(r'def (\w+)\((.*?)\):',
-                       r'public static void \1(\2) {', java_code)
+    # Ensure space after commas
+    styled_code = re.sub(r',(\S)', r', \1', styled_code)
 
-    # Replace indentation (4 spaces -> tab)
-    java_code = java_code.replace("    ", "    ")
+    # Standardize comments with a space after #
+    styled_code = re.sub(r'#(\S)', r'# \1', styled_code)
 
-    # Replace Python comments (#) with Java (//)
-    java_code = re.sub(r'#(.*)', r'//\1', java_code)
+    # Ensure single blank line between functions
+    styled_code = re.sub(r'\n{2,}def', r'\n\ndef', styled_code)
 
-    # Add class wrapper if missing
-    java_code = "public class ConvertedCode {\n" + java_code + "\n}"
-
-    return java_code
+    return styled_code
 
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python convert_py_to_java.py <python_file>")
+        print("Usage: python style_python.py <python_file>")
         sys.exit(1)
 
     py_file = Path(sys.argv[1])
@@ -39,13 +35,6 @@ def main():
         sys.exit(1)
 
     py_code = py_file.read_text()
-    java_code = convert_python_to_java(py_code)
+    styled_code = style_python_code(py_code)
 
-    java_file = py_file.with_suffix(".java")
-    java_file.write_text(java_code)
-
-    print(f"✅ Converted {py_file} -> {java_file}")
-
-
-if __name__ == "__main__":
-    main()
+    output_file = py_file.with_name(py_file.stem + "_styled._
