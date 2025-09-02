@@ -28,35 +28,26 @@ jobs:
           mkdir -p output/styled
           cp codepython_updated.py output/styled/
 
-      # Checkout repo B (empty repo-2) into a subfolder
+      # Checkout repo B into a subfolder
       - name: Checkout repo B
         uses: actions/checkout@v4
         with:
           repository: sarvani142/repo-2
           token: ${{ secrets.SECOND_REPO_TOKEN }}
           path: repo-b
-          fetch-depth: 0
-          persist-credentials: true
-
-      # Prepare empty repo B for first commit
-      - name: Initialize repo B branch
-        run: |
-          cd repo-b
-          git init
-          git checkout -B main
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       # Copy results into repo B
       - name: Copy output into repo B
         run: |
-          mkdir -p repo-b/data
+          rm -rf repo-b/data/*
           cp -r output/* repo-b/data/
 
       # Commit + push changes to repo B
       - name: Commit and push to repo B
         run: |
           cd repo-b
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Initial commit: Update data and Python print from repo A ($(date))" || echo "No changes to commit"
-          git push -u origin main
+          git commit -m "Update data and Python print from repo A ($(date))" || echo "No changes to commit"
+          git push
