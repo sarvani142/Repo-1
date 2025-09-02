@@ -28,11 +28,12 @@ jobs:
           rsync -av --exclude='repo-2' --exclude='.git' ./ repo-2/
 
       # Commit and push changes to repo 2
-      - name: Commit and push
+      - name: Commit and push to repo 2
         run: |
           cd repo-2
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Sync from repo 1" || echo "No changes to commit"
-          git push
+          git remote set-url origin https://x-access-token:${{ secrets.SECOND_REPO_TOKEN }}@github.com/sarvani142/repo-2.git
+          git push --set-upstream origin main
