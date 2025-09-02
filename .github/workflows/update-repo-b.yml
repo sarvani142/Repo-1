@@ -1,5 +1,4 @@
-name: Update Repo B with Generated Data
-#random
+name: Update Repo 2 with Generated Data
 on:
   push:
     branches:
@@ -11,43 +10,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repo A 
+      # Checkout repo A
       - name: Checkout repo A
         uses: actions/checkout@v4
 
-      # Run your main data processing script
-      - name: Run data processing
-        run: |
-          python codepython.py
-          # assumes it generates ./output/
-
-      # Update print statement and style Python code
-      - name: Update print statement and style code
-        run: |
-          python update_print.py codepython.py "into repo r3"
-          mkdir -p output/styled
-          cp codepython_updated.py output/styled/
-
-      # Checkout repo B into a subfolder
-      - name: Checkout repo B
+      # Checkout repo 2 (repo-2) into a subfolder
+      - name: Checkout repo 2
         uses: actions/checkout@v4
         with:
           repository: sarvani142/repo-2
           token: ${{ secrets.SECOND_REPO_TOKEN }}
-          path: repo-b
+          path: repo-2
+          fetch-depth: 0
+          persist-credentials: true
 
-      # Copy results into repo B
-      - name: Copy output into repo B
+      # Run your main data processing script with output directed into repo-2
+      - name: Run data processing and update print
         run: |
-          rm -rf repo-b/data/*
-          cp -r output/* repo-b/data/
+          python update_print.py codepython.py "into repo r3"
+          mkdir -p repo-2/data
+          # Copy the processed code and output directly into repo-2
+          cp codepython_updated.py repo-2/data/
+          cp -r output/* repo-2/data/
 
-      # Commit + push changes to repo B
-      - name: Commit and push to repo B
+      # Commit and push changes to repo 2
+      - name: Commit and push to repo 2
         run: |
-          cd repo-b
+          cd repo-2
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Update data and Python print from repo A ($(date))" || echo "No changes to commit"
-          git push
+          git push --set-upstream origin main
