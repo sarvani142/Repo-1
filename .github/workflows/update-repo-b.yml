@@ -32,7 +32,7 @@ jobs:
       - name: Checkout repo B
         uses: actions/checkout@v4
         with:
-          repository: your-username/repo-b
+          repository: sarvani142/repo-2
           token: ${{ secrets.REPO_B_TOKEN }}
           path: repo-b
 
