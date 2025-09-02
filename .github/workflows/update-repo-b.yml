@@ -1,0 +1,53 @@
+name: Update Repo B with Generated Data
+#random
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repo A 
+      - name: Checkout repo A
+        uses: actions/checkout@v4
+
+      # Run your main data processing script
+      - name: Run data processing
+        run: |
+          python codepython.py
+          # assumes it generates ./output/
+
+      # Convert codepython.py -> codepython.java
+      - name: Convert Python to Java
+        run: |
+          python convert_py_to_java.py codepython.py
+          mkdir -p output/java
+          mv codepython.java output/java/
+
+      # Checkout repo B into a subfolder
+      - name: Checkout repo B
+        uses: actions/checkout@v4
+        with:
+          repository: your-username/repo-b
+          token: ${{ secrets.REPO_B_TOKEN }}
+          path: repo-b
+
+      # Copy results into repo B
+      - name: Copy output into repo B
+        run: |
+          rm -rf repo-b/data/*
+          cp -r output/* repo-b/data/
+
+      # Commit + push changes to repo B
+      - name: Commit and push to repo B
+        run: |
+          cd repo-b
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update data and Java conversion from repo A ($(date))" || echo "No changes to commit"
+          git push
