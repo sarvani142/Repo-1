@@ -25,7 +25,7 @@ jobs:
       # Copy all files from repo 1 to repo 2
       - name: Copy files
         run: |
-          cp -r * repo-2/
+          rsync -av --exclude='repo-2' --exclude='.git' ./ repo-2/
 
       # Commit and push changes to repo 2
       - name: Commit and push
